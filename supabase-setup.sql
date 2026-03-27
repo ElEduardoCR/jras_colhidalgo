@@ -1,0 +1,50 @@
+-- Drop existing tables if they exist (Be careful using this in production)
+-- DROP TABLE IF EXISTS payments;
+-- DROP TABLE IF EXISTS agreements;
+-- DROP TABLE IF EXISTS users;
+
+-- 1. Create Users Table
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  phone TEXT,
+  address TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 2. Create Agreements (Convenios) Table
+CREATE TABLE agreements (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  total_debt DECIMAL(10, 2) NOT NULL,
+  amount_per_payment DECIMAL(10, 2) NOT NULL,
+  number_of_payments INTEGER NOT NULL,
+  frequency TEXT NOT NULL DEFAULT 'semanal', -- e.g., 'semanal', 'quincenal', 'mensual'
+  start_date DATE NOT NULL,
+  status TEXT NOT NULL DEFAULT 'active', -- 'active', 'completed', 'cancelled'
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 3. Create Payments (Pagos) Table
+CREATE TABLE payments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  agreement_id UUID NOT NULL REFERENCES agreements(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  expected_amount DECIMAL(10, 2) NOT NULL,
+  paid_amount DECIMAL(10, 2) DEFAULT 0 NOT NULL,
+  due_date DATE NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending', -- 'pending', 'paid', 'partial', 'unpaid'
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Row Level Security (RLS) policies (Optional for initial MVP where Admin controls everything)
+-- If we want the app to connect using the anon role:
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE agreements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
+
+-- Allow anon public access for the MVP (Admin-only systems usually handle this via server-side or service bindings, 
+-- but since this is a simple webapp for internal use, we'll allow public operations for now or you can restrict if needed).
+CREATE POLICY "Allow anon read/write users" ON users FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow anon read/write agreements" ON agreements FOR ALL USING (true) WITH CHECK (true);
+CREATE POLICY "Allow anon read/write payments" ON payments FOR ALL USING (true) WITH CHECK (true);
