@@ -6,13 +6,13 @@ import { supabase } from "@/lib/supabase";
 import CreateUserModal from "@/components/CreateUserModal";
 
 interface User {
-  id: string;
-  cuenta: string;
-  nombre: string;
-  direccion: string;
-  tarifa: string;
-  deuda: number;
-  created_at: string;
+  id: string | number;
+  cuenta: string | null;
+  nombre: string | null;
+  direccion: string | null;
+  tarifa: string | null;
+  deuda: number | null;
+  created_at: string | null;
 }
 
 export default function UsersPage() {
@@ -26,9 +26,12 @@ export default function UsersPage() {
     const { data, error } = await supabase
       .from("users")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("cuenta", { ascending: true });
 
-    if (!error && data) {
+    if (error) {
+      console.error("Error fetching users:", error.message);
+    }
+    if (data) {
       setUsers(data);
     }
     setLoading(false);
@@ -38,10 +41,12 @@ export default function UsersPage() {
     fetchUsers();
   }, []);
 
-  const filteredUsers = users.filter((u) =>
-    u.nombre.toLowerCase().includes(search.toLowerCase()) || 
-    u.cuenta.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredUsers = users.filter((u) => {
+    const nombre = (u.nombre ?? "").toLowerCase();
+    const cuenta = (u.cuenta ?? "").toLowerCase();
+    const q = search.toLowerCase();
+    return nombre.includes(q) || cuenta.includes(q);
+  });
 
   return (
     <div className="max-w-6xl mx-auto">
@@ -107,12 +112,14 @@ export default function UsersPage() {
               ) : (
                 filteredUsers.map((user) => (
                   <tr key={user.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 text-gray-600 font-medium">{user.cuenta}</td>
-                    <td className="px-6 py-4 text-gray-900 font-medium">{user.nombre}</td>
-                    <td className="px-6 py-4 text-gray-600">{user.direccion || "—"}</td>
-                    <td className="px-6 py-4 text-gray-600">{user.tarifa}</td>
-                    <td className="px-6 py-4 text-gray-600 font-bold">${Number(user.deuda || 0).toFixed(2)}</td>
-                    <td className="px-6 py-4 text-gray-500 text-sm">{new Date(user.created_at).toLocaleDateString("es-MX")}</td>
+                    <td className="px-6 py-4 text-gray-600 font-medium">{user.cuenta ?? "—"}</td>
+                    <td className="px-6 py-4 text-gray-900 font-medium">{user.nombre ?? "—"}</td>
+                    <td className="px-6 py-4 text-gray-600">{user.direccion ?? "—"}</td>
+                    <td className="px-6 py-4 text-gray-600">{user.tarifa ?? "—"}</td>
+                    <td className="px-6 py-4 text-gray-600 font-bold">${Number(user.deuda ?? 0).toFixed(2)}</td>
+                    <td className="px-6 py-4 text-gray-500 text-sm">
+                      {user.created_at ? new Date(user.created_at).toLocaleDateString("es-MX") : "—"}
+                    </td>
                   </tr>
                 ))
               )}
