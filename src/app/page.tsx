@@ -15,8 +15,8 @@ interface Payment {
   due_date: string;
   status: string;
   users: {
-    name: string;
-    phone: string;
+    nombre: string;
+    cuenta: string;
   };
 }
 
@@ -36,10 +36,10 @@ export default function Home() {
       .from("payments")
       .select(`
         *,
-        users ( name, phone )
+        users ( nombre, cuenta )
       `)
       .eq("due_date", dateStr)
-      .order("users(name)", { ascending: true });
+      .order("users(nombre)", { ascending: true });
 
     if (!error && data) {
       setPayments(data as Payment[]);
@@ -53,7 +53,7 @@ export default function Home() {
 
   // Handle Full Payment
   async function handleFullPayment(payment: Payment) {
-    if (!confirm(`¿Confirmar el pago completo de $${payment.expected_amount} por ${payment.users.name}?`)) return;
+    if (!confirm(`¿Confirmar el pago completo de $${payment.expected_amount} por ${payment.users?.nombre}?`)) return;
 
     await supabase
       .from("payments")
@@ -203,8 +203,8 @@ export default function Home() {
                 {payments.map(payment => (
                   <tr key={payment.id} className="border-b border-gray-50 hover:bg-gray-50">
                     <td className="px-6 py-4">
-                      <div className="font-medium text-gray-900">{payment.users?.name}</div>
-                      <div className="text-sm text-gray-500">{payment.users?.phone || "Sin Teléfono"}</div>
+                      <div className="font-medium text-gray-900">{payment.users?.nombre}</div>
+                      <div className="text-sm text-gray-500">CTA: {payment.users?.cuenta || "-"}</div>
                     </td>
                     <td className="px-6 py-4 text-gray-900 font-bold">
                       ${payment.expected_amount.toFixed(2)}

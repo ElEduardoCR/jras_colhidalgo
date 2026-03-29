@@ -7,7 +7,7 @@ import { addWeeks, addMonths, parseISO } from "date-fns";
 
 interface User {
   id: string;
-  name: string;
+  nombre: string;
 }
 
 export default function CreateAgreementModal({
@@ -37,10 +37,10 @@ export default function CreateAgreementModal({
       // Fetch users for the dropdown
       supabase
         .from("users")
-        .select("id, name")
-        .order("name", { ascending: true })
+        .select("id, nombre")
+        .order("nombre", { ascending: true })
         .then(({ data }) => {
-          if (data) setUsers(data);
+          if (data) setUsers(data as any);
         });
     }
   }, [isOpen]);
@@ -158,7 +158,7 @@ export default function CreateAgreementModal({
               <option value="">Selecciona un usuario</option>
               {users.map((u) => (
                 <option key={u.id} value={u.id}>
-                  {u.name}
+                  {u.nombre}
                 </option>
               ))}
             </select>

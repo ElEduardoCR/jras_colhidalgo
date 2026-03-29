@@ -7,9 +7,11 @@ import CreateUserModal from "@/components/CreateUserModal";
 
 interface User {
   id: string;
-  name: string;
-  phone: string;
-  address: string;
+  cuenta: string;
+  nombre: string;
+  direccion: string;
+  tarifa: string;
+  deuda: number;
   created_at: string;
 }
 
@@ -37,7 +39,8 @@ export default function UsersPage() {
   }, []);
 
   const filteredUsers = users.filter((u) =>
-    u.name.toLowerCase().includes(search.toLowerCase())
+    u.nombre.toLowerCase().includes(search.toLowerCase()) || 
+    u.cuenta.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -80,40 +83,36 @@ export default function UsersPage() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-100 text-gray-600 text-sm">
+                <th className="px-6 py-4 font-medium">Cuenta</th>
                 <th className="px-6 py-4 font-medium">Nombre</th>
-                <th className="px-6 py-4 font-medium">Teléfono</th>
                 <th className="px-6 py-4 font-medium">Dirección</th>
-                <th className="px-6 py-4 font-medium">Fecha de Registro</th>
+                <th className="px-6 py-4 font-medium">Tarifa</th>
+                <th className="px-6 py-4 font-medium">Adeudo</th>
+                <th className="px-6 py-4 font-medium">Fecha</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                     Cargando usuarios...
                   </td>
                 </tr>
               ) : filteredUsers.length === 0 ? (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                     No se encontraron usuarios.
                   </td>
                 </tr>
               ) : (
                 filteredUsers.map((user) => (
                   <tr key={user.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
-                    <td className="px-6 py-4 text-gray-900 font-medium">
-                      {user.name}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {user.phone || "-"}
-                    </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {user.address || "-"}
-                    </td>
-                    <td className="px-6 py-4 text-gray-500 text-sm">
-                      {new Date(user.created_at).toLocaleDateString("es-MX")}
-                    </td>
+                    <td className="px-6 py-4 text-gray-600 font-medium">{user.cuenta}</td>
+                    <td className="px-6 py-4 text-gray-900 font-medium">{user.nombre}</td>
+                    <td className="px-6 py-4 text-gray-600">{user.direccion || "—"}</td>
+                    <td className="px-6 py-4 text-gray-600">{user.tarifa}</td>
+                    <td className="px-6 py-4 text-gray-600 font-bold">${Number(user.deuda || 0).toFixed(2)}</td>
+                    <td className="px-6 py-4 text-gray-500 text-sm">{new Date(user.created_at).toLocaleDateString("es-MX")}</td>
                   </tr>
                 ))
               )}

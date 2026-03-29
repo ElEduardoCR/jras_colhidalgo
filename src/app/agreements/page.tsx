@@ -14,7 +14,7 @@ interface Agreement {
   start_date: string;
   status: string;
   users: {
-    name: string;
+    nombre: string;
   };
 }
 
@@ -30,7 +30,7 @@ export default function AgreementsPage() {
       .from("agreements")
       .select(`
         *,
-        users ( name )
+        users ( nombre )
       `)
       .order("start_date", { ascending: false });
 
@@ -45,7 +45,7 @@ export default function AgreementsPage() {
   }, []);
 
   const filteredAgreements = agreements.filter((a) =>
-    a.users?.name?.toLowerCase().includes(search.toLowerCase())
+    a.users?.nombre?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -113,7 +113,7 @@ export default function AgreementsPage() {
                 filteredAgreements.map((agreement) => (
                   <tr key={agreement.id} className="border-b border-gray-50 hover:bg-gray-50 transition-colors">
                     <td className="px-6 py-4 text-gray-900 font-medium">
-                      {agreement.users?.name || "Usuario Desconocido"}
+                      {agreement.users?.nombre || "Usuario Desconocido"}
                     </td>
                     <td className="px-6 py-4 text-gray-900 font-bold">
                       ${agreement.total_debt.toFixed(2)}

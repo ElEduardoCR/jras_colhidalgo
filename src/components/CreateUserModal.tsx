@@ -13,9 +13,11 @@ export default function CreateUserModal({
   onClose: () => void;
   onUserAdded: () => void;
 }) {
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [address, setAddress] = useState("");
+  const [cuenta, setCuenta] = useState("");
+  const [nombre, setNombre] = useState("");
+  const [direccion, setDireccion] = useState("");
+  const [tarifa, setTarifa] = useState("");
+  const [deuda, setDeuda] = useState("0");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +29,13 @@ export default function CreateUserModal({
     setError(null);
 
     const { error: insertError } = await supabase.from("users").insert([
-      { name, phone, address },
+      { 
+        cuenta, 
+        nombre, 
+        direccion,
+        tarifa,
+        deuda: parseFloat(deuda) || 0 
+      },
     ]);
 
     setLoading(false);
@@ -38,9 +46,11 @@ export default function CreateUserModal({
     }
 
     // Reset form
-    setName("");
-    setPhone("");
-    setAddress("");
+    setCuenta("");
+    setNombre("");
+    setDireccion("");
+    setTarifa("");
+    setDeuda("0");
     
     onUserAdded();
     onClose();
@@ -66,13 +76,27 @@ export default function CreateUserModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Nombre Completo *
+              Número de Cuenta *
             </label>
             <input
               type="text"
               required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={cuenta}
+              onChange={(e) => setCuenta(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent outline-none"
+              placeholder="Ej. C-10293"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Nombre del Cliente *
+            </label>
+            <input
+              type="text"
+              required
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent outline-none"
               placeholder="Ej. Juan Pérez"
             />
@@ -80,26 +104,42 @@ export default function CreateUserModal({
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Teléfono
+              Dirección
             </label>
             <input
               type="text"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              value={direccion}
+              onChange={(e) => setDireccion(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent outline-none"
-              placeholder="Ej. 6141234567"
+              placeholder="Ej. Calle Hidalgo #12"
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Dirección
+              Tarifa *
             </label>
-            <textarea
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent outline-none min-h-[80px]"
-              placeholder="Dirección del domicilio..."
+            <input
+              type="text"
+              required
+              value={tarifa}
+              onChange={(e) => setTarifa(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent outline-none"
+              placeholder="Ej. Doméstica / Comercial / 150.00"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Deuda Actual ($)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              value={deuda}
+              onChange={(e) => setDeuda(e.target.value)}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-[var(--color-primary)] focus:border-transparent outline-none"
+              placeholder="Ej. 1200.00"
             />
           </div>
 
@@ -113,10 +153,10 @@ export default function CreateUserModal({
             </button>
             <button
               type="submit"
-              disabled={loading || !name.trim()}
+              disabled={loading || !nombre.trim() || !cuenta.trim()}
               className="bg-[var(--color-primary)] hover:bg-blue-900 text-white px-6 py-2 rounded-lg font-medium shadow-sm transition-colors disabled:opacity-50"
             >
-              {loading ? "Guardando..." : "Guardar Usuario"}
+              {loading ? "Guardando..." : "Guardar Cliente"}
             </button>
           </div>
         </form>
